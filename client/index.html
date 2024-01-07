@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Group Video Call</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+  </head>
+  <body>
+    <h1>Join a Room</h1>
+    <input type="text" id="room-id" placeholder="Enter Room ID" />
+    <button id="join-button">Join</button>
+
+    <div id="video-container"></div>
+  </body>
+
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="main.js"></script>
+</html>
