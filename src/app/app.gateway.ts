@@ -23,7 +23,13 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   constructor(private readonly appService: AppService) {}
 
   @SubscribeMessage('join-room')
-  handleJoinRoom(client: Socket, payload: { roomId: string }) {}
+  handleJoinRoom(client: Socket, payload: { roomId: string; myId: string }) {
+    const { roomId, myId } = payload
+    console.log(`a new user ${myId} joined room ${roomId}`)
+
+    client.join(roomId)
+    client.broadcast.to(roomId).emit('user-connected', myId)
+  }
 
   afterInit(server: Server) {
     console.log(server)
