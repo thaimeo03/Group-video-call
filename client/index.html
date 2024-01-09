@@ -13,6 +13,7 @@
 
       #controls {
         display: none;
+        margin-top: 20px;
         width: 100%;
         justify-content: center;
         gap: 10px;
@@ -29,6 +30,10 @@
 
       .btn:hover {
         opacity: 0.7;
+      }
+
+      #audio-button {
+        background-color: #076785;
       }
 
       #video-button {
@@ -48,6 +53,7 @@
     <div id="video-container"></div>
 
     <div id="controls">
+      <button type="button" id="audio-button" class="btn">Audio</button>
       <button type="button" id="video-button" class="btn">Video</button>
       <button type="button" id="leave-button" class="btn">Leave</button>
     </div>

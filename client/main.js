@@ -3,6 +3,7 @@ const socket = io('http://localhost:3000')
 const roomIdElement = document.getElementById('room-id')
 const joinButtonElement = document.getElementById('join-button')
 const controlsElement = document.getElementById('controls')
+const audioButtonElement = document.getElementById('audio-button')
 const videoButtonElement = document.getElementById('video-button')
 const leaveButtonElement = document.getElementById('leave-button')
 
@@ -54,7 +55,6 @@ const handleJoinRoom = () => {
   controlsElement.style.display = 'flex'
   socket.emit('join-room', { roomId, myId })
 }
-
 // End join room
 
 // Leave room
@@ -71,7 +71,6 @@ socket.on('user-leave', (userLeavedId) => {
 })
 
 leaveButtonElement.addEventListener('click', handleLeaveRoom)
-
 // End leave room
 
 // Video toggle
@@ -93,8 +92,28 @@ videoButtonElement.addEventListener('click', () => {
   }
   socket.emit('video-toggle', { myId, roomId })
 })
-
 // End video toggle
+
+// Audio toggle
+socket.on('audio-toggle', (userToggleId) => {
+  const audioTrack = document.getElementById(userToggleId).srcObject.getAudioTracks()[0]
+  if (audioTrack.enabled) {
+    audioTrack.enabled = false
+  } else {
+    audioTrack.enabled = true
+  }
+})
+
+audioButtonElement.addEventListener('click', () => {
+  const audioTrack = document.getElementById(myId).srcObject.getAudioTracks()[0]
+  if (audioTrack.enabled) {
+    audioTrack.enabled = false
+  } else {
+    audioTrack.enabled = true
+  }
+  socket.emit('audio-toggle', { myId, roomId })
+})
+// End audio toggle
 
 // Initialize
 const main = async () => {
@@ -105,6 +124,19 @@ const main = async () => {
       video: true,
       audio: true
     })
+    // const stream = await navigator.mediaDevices.getDisplayMedia({
+    //   video: {
+    //     displaySurface: 'browser'
+    //   },
+    //   audio: {
+    //     suppressLocalAudioPlayback: false
+    //   },
+    //   preferCurrentTab: false,
+    //   selfBrowserSurface: 'exclude',
+    //   systemAudio: 'include',
+    //   surfaceSwitching: 'include',
+    //   monitorTypeSurfaces: 'include'
+    // })
     const video = document.createElement('video')
     video.setAttribute('id', myId)
     video.srcObject = stream

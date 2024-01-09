@@ -52,6 +52,13 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     client.broadcast.to(roomId).emit('video-toggle', myId)
   }
 
+  @SubscribeMessage('audio-toggle')
+  handleAudioToggle(client: Socket, payload: { roomId: string; myId: string }) {
+    const { roomId, myId } = payload
+    client.join(roomId)
+    client.broadcast.to(roomId).emit('audio-toggle', myId)
+  }
+
   afterInit(server: Server) {
     console.log(server)
   }
