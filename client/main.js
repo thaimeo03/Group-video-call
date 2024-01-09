@@ -2,6 +2,9 @@ const socket = io('http://localhost:3000')
 
 const roomIdElement = document.getElementById('room-id')
 const joinButtonElement = document.getElementById('join-button')
+const controlsElement = document.getElementById('controls')
+const videoButtonElement = document.getElementById('video-button')
+const leaveButtonElement = document.getElementById('leave-button')
 
 let roomId
 let myPeer = new Peer()
@@ -16,10 +19,7 @@ joinButtonElement.addEventListener('click', () => {
 })
 
 // Handle events
-const handleJoinRoom = () => {
-  socket.emit('join-room', { roomId, myId })
-}
-
+// Join room
 socket.on('user-connected', async (newUserId) => {
   console.log(`user connected in room with userId ${newUserId}`)
 
@@ -28,12 +28,12 @@ socket.on('user-connected', async (newUserId) => {
     audio: true
   })
 
-  // const newPeer = new Peer()
   const call = myPeer.call(newUserId, stream)
 
   call.on('stream', (incomingStream) => {
     console.log('setting stream for user: ' + newUserId)
-    // remoteUsers[newUserId] = incomingStream
+    remoteUsers[newUserId] = incomingStream
+    console.log(remoteUsers)
 
     const existingVideoElement = document.getElementById(newUserId)
     if (existingVideoElement) {
@@ -49,6 +49,52 @@ socket.on('user-connected', async (newUserId) => {
     document.getElementById('video-container').appendChild(video)
   })
 })
+
+const handleJoinRoom = () => {
+  controlsElement.style.display = 'flex'
+  socket.emit('join-room', { roomId, myId })
+}
+
+// End join room
+
+// Leave room
+const handleLeaveRoom = () => {
+  socket.emit('user-leave', { myId, roomId })
+  myPeer.disconnect()
+  window.location.reload()
+}
+
+socket.on('user-leave', (userLeavedId) => {
+  console.log(`user ${userLeavedId} left the room`)
+  delete remoteUsers[userLeavedId]
+  document.getElementById(userLeavedId).remove()
+})
+
+leaveButtonElement.addEventListener('click', handleLeaveRoom)
+
+// End leave room
+
+// Video toggle
+socket.on('video-toggle', (userToggleId) => {
+  const videoTrack = document.getElementById(userToggleId).srcObject.getVideoTracks()[0]
+  if (videoTrack.enabled) {
+    videoTrack.enabled = false
+  } else {
+    videoTrack.enabled = true
+  }
+})
+
+videoButtonElement.addEventListener('click', () => {
+  const videoTrack = document.getElementById(myId).srcObject.getVideoTracks()[0]
+  if (videoTrack.enabled) {
+    videoTrack.enabled = false
+  } else {
+    videoTrack.enabled = true
+  }
+  socket.emit('video-toggle', { myId, roomId })
+})
+
+// End video toggle
 
 // Initialize
 const main = async () => {
@@ -81,7 +127,8 @@ const main = async () => {
         console.log('existing video element found for user: ' + callerId)
         existingVideoElement.remove()
       }
-      // remoteUsers[callerId] = incomingStream
+      remoteUsers[callerId] = incomingStream
+      console.log(remoteUsers)
       const video = document.createElement('video')
       video.setAttribute('id', callerId)
       video.srcObject = incomingStream
